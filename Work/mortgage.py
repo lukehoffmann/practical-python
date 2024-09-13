@@ -27,7 +27,7 @@ while principal > 0:
 
     total_paid += payment
     principal -= payment 
-    print(month, round(total_paid, 2), round(principal, 2))
+    print(f"{month:4d}\t{total_paid:10.2f}\t{principal:10.2f}")
 
-print('Total paid', round(total_paid, 2))
-print('Months', month)
+print(f'Total paid\t{total_paid:10.2f}')
+print(f'Months    \t{month:10d}')
