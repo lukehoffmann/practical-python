@@ -46,12 +46,12 @@ portfolio = read_portfolio("Data/portfolio.csv")
 report = make_report(portfolio, prices)
 
 headers = ["Name", "Shares", "Price", "Change"]
-print("".join([f"{header:>10s}" for header in headers]))
-print("".join([" " + "-" * 9 for _ in headers]))
+print(" ".join(["%10s" % header for header in headers]))
+print(" ".join([10 * "-" for _ in headers]))
 for name, shares, price, change in report:
     price = f"${price:>.2f}"
     symbol = ("⬆" if change > 0.0
          else "⬇" if change < 0.0
          else "-")
     change = f"{symbol} ${abs(change):.2f}"
-    print(f"{name:>10s}{shares:>10d}{price:>10s}{change:>10s}")
+    print(f"{name:>10s} {shares:>10d} {price:>10s} {change:>10s}")
