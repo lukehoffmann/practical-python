@@ -27,26 +27,28 @@ def read_portfolio(filename):
     return portfolio
 
 
-ds = "{:.2f}"
-
-
-def format_profit(change):
-    symbol = ("⬆" if change > 0.0
-        else "⬇" if change < 0.0
-        else "-")
-    return f"({symbol}{abs(change):.2f})"
-
+def make_report(portfolio, prices):
+    report = []
+    for stock in portfolio:
+        stock["old_value"] = stock["shares"] * stock["price"]
+        stock["new_price"] = prices[stock["name"]]
+        stock["new_value"] = stock["shares"] * stock["new_price"]
+        stock["price_change"] = stock["new_price"] - stock["price"]
+        stock["change"] = stock["new_value"] - stock["old_value"]
+        report.append((stock['name'], stock['shares'], stock['new_price'], stock['price_change']))
+    return report
 
 prices = read_prices("Data/prices.csv")
 portfolio = read_portfolio("Data/portfolio.csv")
+report = make_report(portfolio, prices)
 
-for stock in portfolio:
-    stock["old_value"] = stock["shares"] * stock["price"]
-    stock["new_value"] = stock["shares"] * prices[stock["name"]]
-    stock["change"] = stock["new_value"] - stock["old_value"]
-    print(f'{stock["name"]:<7s}{stock["old_value"]:10.2f} →{stock["new_value"]:10.2f}{format_profit(stock["change"]):>15s}')
-
-portfolio_total = sum([stock["old_value"] for stock in portfolio])
-new_total = sum([stock["new_value"] for stock in portfolio])
-profit = new_total - portfolio_total
-print(f'{"total":<7s}{portfolio_total:10.2f} →{new_total:10.2f}{format_profit(profit):>15s}')
+headers = ["Name", "Shares", "Price", "Change"]
+print(''.join([f'{header:>10s}' for header in headers]))
+print(''.join([' ' + '-' * 9 for _ in headers]))
+for name, shares, price, change in report:
+    price = f"${price:>.2f}"
+    symbol = ("⬆" if change > 0.0
+        else "⬇" if change < 0.0
+        else "-")
+    change = f"{symbol} ${abs(change):.2f}"
+    print(f'{name:>10s}{shares:>10d}{price:>10s}{change:>10s}')
