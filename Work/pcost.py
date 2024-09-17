@@ -11,10 +11,11 @@ def portfolio_cost(filename):
         rows = csv.reader(f)
         next(rows) # header
         for (name, shares, price) in rows:
+            item = dict([('name', name), ('shares', shares), ('price', price)])
             try:
-                cost += int(shares) * float(price)
+                cost += int(item['shares']) * float(item['price'])
             except ValueError as e:
-                print('Warning, invalid values in', (name, shares, price), e)
+                print('Warning, invalid values in', item, e)
     return cost
 
 if len(sys.argv) == 2:
