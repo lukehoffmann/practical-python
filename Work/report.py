@@ -17,12 +17,20 @@ def read_prices(filename):
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
-    required_columns = ["name", "shares", "price"]
+    column_defs = [
+        { "name": "name", "type": str },
+        { "name": "shares", "type": int },
+        { "name": "price", "type": float }
+    ]
     with open(filename, "rt") as f:
         rows = csv.reader(f)
         headers = next(rows)
-        column_indices = { column: headers.index(column) for column in required_columns }
-        portfolio = [ { column: row[i] for column, i in column_indices.items() } for row in rows]
+        for column in column_defs:
+            column['index'] = headers.index(column['name'])
+
+        portfolio = [{
+                column['name']: column['type'](row[column['index']]) for column in column_defs
+            } for row in rows]
 
     for stock in portfolio:
         stock['shares'] = int(stock['shares'])
