@@ -2,52 +2,55 @@
 #
 # Exercise 2.4
 
+from collections import Counter
 import csv
 
 
 def read_prices(filename):
     """Read a pricelist from a csv"""
-    prices = {}
     with open(filename, "rt") as f:
-        for row in csv.reader(f):
-            if len(row) >= 1:
-                prices[row[0]] = float(row[1])
-    return prices
+        reader = csv.reader(f)
+        return dict(
+            [(row[0], float(row[1])) for row in reader if row]
+        )
 
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
+    required_columns = ["name", "shares", "price"]
     with open(filename, "rt") as f:
-        reader = csv.reader(f)
-        headers = next(reader)
-        return [dict(zip(headers, row)) for row in reader]
+        rows = csv.reader(f)
+        headers = next(rows)
+        column_indices = { column: headers.index(column) for column in required_columns }
+        portfolio = [ { column: row[i] for column, i in column_indices.items() } for row in rows]
 
-
-def make_report(portfolio, prices):
-    report = []
     for stock in portfolio:
-        stock["old_value"] = int(stock["shares"]) * float(stock["price"])
-        stock["new_price"] = prices[stock["name"]]
-        stock["new_value"] = int(stock["shares"]) * stock["new_price"]
-        stock["price_change"] = stock["new_price"] - float(stock["price"])
-        stock["change"] = stock["new_value"] - stock["old_value"]
-        report.append(
-            (stock["name"], int(stock["shares"]), stock["new_price"], stock["price_change"])
-        )
-    return report
+        stock['shares'] = int(stock['shares'])
+        stock['price'] = float(stock['price'])
+    return portfolio
 
 
 prices = read_prices("Data/prices.csv")
 portfolio = read_portfolio("Data/portfolio.csv")
-report = make_report(portfolio, prices)
 
-headers = ["Name", "Shares", "Price", "Change"]
+headers = ["Name", "Shares", "Was", "Now", "Position"]
 print(" ".join(["%10s" % header for header in headers]))
 print(" ".join([10 * "-" for _ in headers]))
-for name, shares, price, change in report:
-    price = f"${price:>.2f}"
-    symbol = ("⬆" if change > 0.0
-         else "⬇" if change < 0.0
+for stock in portfolio:
+    old_price = stock["price"]
+    new_price = prices[stock["name"]]
+    stock["cost"] = stock["shares"] * old_price
+    stock["value"] = stock["shares"] * new_price
+
+    was = f"${old_price:>.2f}"
+    now = f"${new_price:>.2f}"
+
+    position = stock["value"] - stock["cost"]
+    symbol = ("⬆" if position > 0.0
+         else "⬇" if position < 0.0
          else "-")
-    change = f"{symbol} ${abs(change):.2f}"
-    print(f"{name:>10s} {shares:>10d} {price:>10s} {change:>10s}")
+    position_dollars = f"${abs(position):.2f}"
+    print(f"{stock['name']:>10s} {stock['shares']:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}")
+
+total = sum([stock["value"] for stock in portfolio])
+print ('Total value', total)
