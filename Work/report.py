@@ -17,26 +17,22 @@ def read_prices(filename):
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
-    portfolio = []
     with open(filename, "rt") as f:
-        next(f)  # header
-        for row in csv.reader(f):
-            portfolio.append(
-                {"name": row[0], "shares": int(row[1]), "price": float(row[2])}
-            )
-    return portfolio
+        reader = csv.reader(f)
+        headers = next(reader)
+        return [dict(zip(headers, row)) for row in reader]
 
 
 def make_report(portfolio, prices):
     report = []
     for stock in portfolio:
-        stock["old_value"] = stock["shares"] * stock["price"]
+        stock["old_value"] = int(stock["shares"]) * float(stock["price"])
         stock["new_price"] = prices[stock["name"]]
-        stock["new_value"] = stock["shares"] * stock["new_price"]
-        stock["price_change"] = stock["new_price"] - stock["price"]
+        stock["new_value"] = int(stock["shares"]) * stock["new_price"]
+        stock["price_change"] = stock["new_price"] - float(stock["price"])
         stock["change"] = stock["new_value"] - stock["old_value"]
         report.append(
-            (stock["name"], stock["shares"], stock["new_price"], stock["price_change"])
+            (stock["name"], int(stock["shares"]), stock["new_price"], stock["price_change"])
         )
     return report
 

@@ -5,23 +5,30 @@
 import csv
 import sys
 
-def portfolio_cost(filename):
-    cost = 0.0
+
+def read_portfolio(filename):
     with open(filename, 'rt') as f:
         rows = csv.reader(f)
-        next(rows) # header
-        for (name, shares, price) in rows:
-            item = dict([('name', name), ('shares', shares), ('price', price)])
-            try:
-                cost += int(item['shares']) * float(item['price'])
-            except ValueError as e:
-                print('Warning, invalid values in', item, e)
-    return cost
+        headers = next(rows)
+        return [dict(zip(headers, row)) for row in rows]
+
+
+def portfolio_cost(portfolio):
+    for (i, item) in enumerate(portfolio):
+        try:
+            item['cost'] = int(item['shares']) * float(item['price'])
+        except ValueError as e:
+            print(f"Row {i}: Couldn't convert: {item}, {e}")
+
+    return sum([item.get('cost', 0.0) for item in portfolio])
+
 
 if len(sys.argv) == 2:
     filename = sys.argv[1]
 else:
     filename = 'Data/portfolio.csv'
 
-cost = portfolio_cost(filename)
+
+portfolio = read_portfolio(filename)
+cost = portfolio_cost(portfolio)
 print(f"Total cost ${cost:.2f}")
