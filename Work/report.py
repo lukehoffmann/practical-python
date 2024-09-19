@@ -10,31 +10,33 @@ def read_prices(filename):
     """Read a pricelist from a csv"""
     with open(filename, "rt") as f:
         reader = csv.reader(f)
-        return dict(
-            [(row[0], float(row[1])) for row in reader if row]
-        )
+        return dict([(row[0], float(row[1])) for row in reader if row])
 
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
     column_defs = [
-        { "name": "name", "type": str },
-        { "name": "shares", "type": int },
-        { "name": "price", "type": float }
+        {"name": "name", "type": str},
+        {"name": "shares", "type": int},
+        {"name": "price", "type": float},
     ]
     with open(filename, "rt") as f:
         rows = csv.reader(f)
         headers = next(rows)
         for column in column_defs:
-            column['index'] = headers.index(column['name'])
+            column["index"] = headers.index(column["name"])
 
-        portfolio = [{
-                column['name']: column['type'](row[column['index']]) for column in column_defs
-            } for row in rows]
+        portfolio = [
+            {
+                column["name"]: column["type"](row[column["index"]])
+                for column in column_defs
+            }
+            for row in rows
+        ]
 
     for stock in portfolio:
-        stock['shares'] = int(stock['shares'])
-        stock['price'] = float(stock['price'])
+        stock["shares"] = int(stock["shares"])
+        stock["price"] = float(stock["price"])
     return portfolio
 
 
@@ -58,7 +60,9 @@ for stock in portfolio:
          else "⬇" if position < 0.0
          else "-")
     position_dollars = f"${abs(position):.2f}"
-    print(f"{stock['name']:>10s} {stock['shares']:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}")
+    print(
+        f"{stock['name']:>10s} {stock['shares']:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}"
+    )
 
 total = sum([stock["value"] for stock in portfolio])
-print ('Total value', total)
+print("Total value", total)
