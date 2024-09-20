@@ -13,12 +13,13 @@ def parse_csv(filename, select=None):
         # Read the file headers
         headers = next(rows)
         # Find the index of selected headers, or use all headers
-        selected_headers = {
-            header: headers.index(header) for header in select or headers
+        select = select or headers
+        selected_columns = {
+            column_name: headers.index(column_name) for column_name in select
         }
         # Create a dictionary of selected values for each row
         make_record = lambda row: {
-            header: row[i] for header, i in selected_headers.items()
+            column_name: row[index] for column_name, index in selected_columns.items()
         }
         return [make_record(row) for row in rows if row]
 
