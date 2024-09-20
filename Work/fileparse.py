@@ -5,10 +5,10 @@
 import csv
 
 
-def parse_csv(filename, has_headers=True, select=None, types=None):
+def parse_csv(filename, delimeter=',', has_headers=True, select=None, types=None):
     """Parse a CSV file into a list of records"""
     with open(filename) as f:
-        rows = csv.reader(f)
+        rows = csv.reader(f, delimiter=delimeter)
 
         # Read the file headers from the first row
         if has_headers:
@@ -40,3 +40,4 @@ print(parse_csv("Data/portfolio.csv"))
 print(parse_csv("Data/portfolio.csv", select=["name", "price"]))
 print(parse_csv("Data/portfolio.csv", types=[str, int, float]))
 print(parse_csv("Data/prices.csv", has_headers=False, types=[str, float]))
+print(parse_csv("Data/portfolio.dat", delimeter=' ', types=[str, int, float]))
