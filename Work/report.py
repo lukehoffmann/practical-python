@@ -1,9 +1,17 @@
+#! /c/ProgramData/Anaconda3/python
 # report.py
 #
 # Exercise 2.4
 
-from collections import Counter
-import csv
+from fileparse import parse_csv
+
+
+def main(argv):
+    if len(argv) < 3:
+        raise SystemExit(f"Usage: {argv[0]} portfolio_filename prices_filename")
+    portfolio_filename = argv[1]
+    prices_filename = argv[2]
+    print_portfolio_report(portfolio_filename, prices_filename)
 
 
 def print_portfolio_report(portfolio_filename, prices_filename):
@@ -14,31 +22,16 @@ def print_portfolio_report(portfolio_filename, prices_filename):
 
 def read_prices(filename):
     """Read a pricelist from a csv"""
-    with open(filename, "rt") as f:
-        reader = csv.reader(f)
-        return dict([(row[0], float(row[1])) for row in reader if row])
+    prices = parse_csv(filename, has_headers=False, types=[str, float])
+    # Convert list  of tuples to a dictionary
+    return {name: price for name, price in prices}
 
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
-    column_defs = [
-        {"header": "name", "type": str},
-        {"header": "shares", "type": int},
-        {"header": "price", "type": float},
-    ]
-    with open(filename, "rt") as f:
-        rows = csv.reader(f)
-        headers = next(rows)
-        for column in column_defs:
-            column["index"] = headers.index(column["header"])
-
-        return [
-            {
-                column["header"]: column["type"](row[column["index"]])
-                for column in column_defs
-            }
-            for row in rows
-        ]
+    return parse_csv(
+        filename, select=["name", "shares", "price"], types=[str, int, float]
+    )
 
 
 def print_report(portfolio, prices):
@@ -55,9 +48,7 @@ def print_report(portfolio, prices):
         now = f"${new_price:>.2f}"
 
         position = stock["value"] - stock["cost"]
-        symbol = ("⬆" if position > 0.0
-            else "⬇" if position < 0.0
-            else "-")
+        symbol = "⬆" if position > 0.0 else "⬇" if position < 0.0 else "-"
         position_dollars = f"${abs(position):.2f}"
         print(
             f"{stock['name']:>10s} {stock['shares']:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}"
@@ -67,4 +58,6 @@ def print_report(portfolio, prices):
     print("Total value", total)
 
 
-print_portfolio_report("Data/portfolio.csv", "Data/prices.csv")
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

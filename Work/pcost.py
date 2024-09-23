@@ -1,16 +1,22 @@
+#! /c/ProgramData/Anaconda3/python
 # pcost.py
 #
 # Exercise 1.27
 
-import csv
 import sys
+from report import read_portfolio
 
 
-def read_portfolio(filename):
-    with open(filename, 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(rows)
-        return [dict(zip(headers, row)) for row in rows]
+def main(argv):
+    if len(argv) < 2:
+        raise sys.exit(f"Usage: {argv[0]} filename")
+    print_cost(argv[1])
+
+
+def print_cost(filename):
+    portfolio = read_portfolio(filename)
+    cost = portfolio_cost(portfolio)
+    print(f"Total cost ${cost:.2f}")
 
 
 def portfolio_cost(portfolio):
@@ -23,12 +29,5 @@ def portfolio_cost(portfolio):
     return sum([item.get('cost', 0.0) for item in portfolio])
 
 
-if len(sys.argv) == 2:
-    filename = sys.argv[1]
-else:
-    filename = 'Data/portfolio.csv'
-
-
-portfolio = read_portfolio(filename)
-cost = portfolio_cost(portfolio)
-print(f"Total cost ${cost:.2f}")
+if __name__ == "__main__":
+    main(sys.argv)
