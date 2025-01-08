@@ -3,6 +3,7 @@
 #
 # Exercise 2.4
 
+import sys
 from fileparse import parse_csv
 
 
@@ -22,16 +23,19 @@ def print_portfolio_report(portfolio_filename, prices_filename):
 
 def read_prices(filename):
     """Read a pricelist from a csv"""
-    prices = parse_csv(filename, has_headers=False, types=[str, float])
+    with open(filename) as f:
+        prices = parse_csv(f, has_headers=False, types=[str, float])
+
     # Convert list  of tuples to a dictionary
     return {name: price for name, price in prices}
 
 
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
-    return parse_csv(
-        filename, select=["name", "shares", "price"], types=[str, int, float]
-    )
+    with open(filename) as f:
+        return parse_csv(
+            f, select=["name", "shares", "price"], types=[str, int, float]
+        )
 
 
 def print_report(portfolio, prices):
@@ -59,5 +63,4 @@ def print_report(portfolio, prices):
 
 
 if __name__ == "__main__":
-    import sys
     main(sys.argv)
