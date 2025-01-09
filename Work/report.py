@@ -5,6 +5,7 @@
 
 import sys
 from fileparse import parse_csv
+from stock import Stock
 
 
 def main(argv):
@@ -33,9 +34,10 @@ def read_prices(filename):
 def read_portfolio(filename):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
     with open(filename) as f:
-        return parse_csv(
+        data = parse_csv(
             f, select=["name", "shares", "price"], types=[str, int, float]
         )
+        return [ Stock(d['name'], d['shares'], d['price']) for d in data ]
 
 
 def print_report(portfolio, prices):
@@ -43,22 +45,22 @@ def print_report(portfolio, prices):
     print(" ".join(["%10s" % header for header in headers]))
     print(" ".join([10 * "-" for _ in headers]))
     for stock in portfolio:
-        old_price = stock["price"]
-        new_price = prices[stock["name"]]
-        stock["cost"] = stock["shares"] * old_price
-        stock["value"] = stock["shares"] * new_price
+        old_price = stock.price
+        new_price = prices[stock.name]
+        stock.cost = stock.shares * old_price
+        stock.value = stock.shares * new_price
 
         was = f"${old_price:>.2f}"
         now = f"${new_price:>.2f}"
 
-        position = stock["value"] - stock["cost"]
+        position = stock.value - stock.cost
         symbol = "⬆" if position > 0.0 else "⬇" if position < 0.0 else "-"
         position_dollars = f"${abs(position):.2f}"
         print(
-            f"{stock['name']:>10s} {stock['shares']:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}"
+            f"{stock.name:>10s} {stock.shares:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}"
         )
 
-    total = sum([stock["value"] for stock in portfolio])
+    total = sum([stock.value for stock in portfolio])
     print("Total value", total)
 
 

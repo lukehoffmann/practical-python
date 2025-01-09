@@ -20,13 +20,7 @@ def print_cost(filename):
 
 
 def portfolio_cost(portfolio):
-    for (i, item) in enumerate(portfolio):
-        try:
-            item['cost'] = int(item['shares']) * float(item['price'])
-        except ValueError as e:
-            print(f"Row {i}: Couldn't convert: {item}, {e}")
-
-    return sum([item.get('cost', 0.0) for item in portfolio])
+    return sum([item.cost() for item in portfolio])
 
 
 if __name__ == "__main__":
