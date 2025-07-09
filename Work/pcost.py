@@ -15,12 +15,8 @@ def main(argv):
 
 def print_cost(filename):
     portfolio = read_portfolio(filename)
-    cost = portfolio_cost(portfolio)
+    cost = portfolio.total_cost
     print(f"Total cost ${cost:.2f}")
-
-
-def portfolio_cost(portfolio):
-    return sum([item.cost for item in portfolio])
 
 
 if __name__ == "__main__":

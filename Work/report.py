@@ -6,6 +6,7 @@
 import sys
 from fileparse import parse_csv
 from stock import Stock
+from portfolio import Portfolio
 
 
 def main(argv):
@@ -37,7 +38,8 @@ def read_portfolio(filename):
         data = parse_csv(
             f, select=["name", "shares", "price"], types=[str, int, float]
         )
-        return [ Stock(d['name'], d['shares'], d['price']) for d in data ]
+    portfolio = [ Stock(d['name'], d['shares'], d['price']) for d in data ]
+    return Portfolio(portfolio)
 
 
 def print_report(portfolio, prices):
