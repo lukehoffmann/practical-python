@@ -20,7 +20,7 @@ def print_cost(filename):
 
 
 def portfolio_cost(portfolio):
-    return sum([item.cost() for item in portfolio])
+    return sum([item.cost for item in portfolio])
 
 
 if __name__ == "__main__":

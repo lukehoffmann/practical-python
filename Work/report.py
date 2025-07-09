@@ -47,20 +47,19 @@ def print_report(portfolio, prices):
     for stock in portfolio:
         old_price = stock.price
         new_price = prices[stock.name]
-        stock.cost = stock.shares * old_price
-        stock.value = stock.shares * new_price
+        value = stock.shares * new_price
 
         was = f"${old_price:>.2f}"
         now = f"${new_price:>.2f}"
 
-        position = stock.value - stock.cost
-        symbol = "⬆" if position > 0.0 else "⬇" if position < 0.0 else "-"
-        position_dollars = f"${abs(position):.2f}"
+        change = value - stock.cost
+        symbol = "⬆" if change > 0.0 else "⬇" if change < 0.0 else "-"
+        change_dollars = f"${abs(change):.2f}"
         print(
-            f"{stock.name:>10s} {stock.shares:>10d} {was:>10s} {now:>10s} {position_dollars:>10s} {symbol}"
+            f"{stock.name:>10s} {stock.shares:>10d} {was:>10s} {now:>10s} {change_dollars:>10s} {symbol}"
         )
 
-    total = sum([stock.value for stock in portfolio])
+    total = sum([value for stock in portfolio])
     print("Total value", total)
 
 
