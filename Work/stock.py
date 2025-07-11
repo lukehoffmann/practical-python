@@ -27,9 +27,14 @@ class Stock:
             raise TypeError('Expected int')
         self._shares = value
 
+
     @property
     def cost(self):
         return self.shares * self.price
+
+
+    def value(self, current_price):
+        return self.shares * current_price
 
 
     def sell(self, number):

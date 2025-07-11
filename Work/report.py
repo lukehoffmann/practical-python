@@ -7,20 +7,24 @@ import sys
 from fileparse import parse_csv
 from stock import Stock
 from portfolio import Portfolio
-
+import tableformat
 
 def main(argv):
     if len(argv) < 3:
-        raise SystemExit(f"Usage: {argv[0]} portfolio_filename prices_filename")
-    portfolio_filename = argv[1]
-    prices_filename = argv[2]
-    print_portfolio_report(portfolio_filename, prices_filename)
+        raise SystemExit(f"Usage: {argv[0]} portfolio_filename prices_filename [csv|text]")
 
+    portfolio = read_portfolio( argv[1])
+    prices = read_prices(argv[2])
 
-def print_portfolio_report(portfolio_filename, prices_filename):
-    prices = read_prices(prices_filename)
-    portfolio = read_portfolio(portfolio_filename)
-    print_report(portfolio, prices)
+    if len(argv) > 3 and argv[3] == 'csv':
+        formatter = tableformat.CsvTableFormatter
+    else:
+        formatter = tableformat.TextTableFormatter
+
+    data = report_data(portfolio, prices)
+    print_report(data, formatter())
+
+    print("Total value", portfolio.total_value(prices))
 
 
 def read_prices(filename):
@@ -28,8 +32,7 @@ def read_prices(filename):
     with open(filename) as f:
         prices = parse_csv(f, has_headers=False, types=[str, float])
 
-    # Convert list  of tuples to a dictionary
-    return {name: price for name, price in prices}
+    return dict(prices)
 
 
 def read_portfolio(filename):
@@ -42,27 +45,22 @@ def read_portfolio(filename):
     return Portfolio(portfolio)
 
 
-def print_report(portfolio, prices):
-    headers = ["Name", "Shares", "Was", "Now", "Position"]
-    print(" ".join(["%10s" % header for header in headers]))
-    print(" ".join([10 * "-" for _ in headers]))
+def report_data(portfolio, prices):
     for stock in portfolio:
         old_price = stock.price
         new_price = prices[stock.name]
-        value = stock.shares * new_price
 
-        was = f"${old_price:>.2f}"
-        now = f"${new_price:>.2f}"
+        change = new_price - old_price
+        position = stock.value(new_price) - stock.cost
+        symbol = "📈" if position > 0.0 else "📉" if position < 0.0 else ""
 
-        change = value - stock.cost
-        symbol = "⬆" if change > 0.0 else "⬇" if change < 0.0 else "-"
-        change_dollars = f"${abs(change):.2f}"
-        print(
-            f"{stock.name:>10s} {stock.shares:>10d} {was:>10s} {now:>10s} {change_dollars:>10s} {symbol}"
-        )
+        yield (stock.name, stock.shares, old_price, new_price, change, position, symbol)
 
-    total = sum([value for stock in portfolio])
-    print("Total value", total)
+
+def print_report(reportdata, formatter):
+    formatter.headings(["Name", "Shares", "Was", "Now", "Change", "Position"])
+    for name, shares, was, now, change, position, symbol in reportdata:
+        formatter.row([name, str(shares), f'${was:>.2f}', f'${now:>.2f}', f'{change:>.2f}{symbol}', f'{position:>.2f}'])
 
 
 if __name__ == "__main__":
