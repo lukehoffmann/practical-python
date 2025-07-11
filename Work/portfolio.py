@@ -4,6 +4,10 @@ class Portfolio:
         self._holdings = holdings
 
 
+    def __repr__(self):
+        return f'Portfolio({self._holdings})'
+
+
     def __iter__(self):
         return self._holdings.__iter__()
 

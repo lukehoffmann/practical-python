@@ -36,3 +36,9 @@ def create_formatter(format):
         return TextTableFormatter()
     else:
         raise RuntimeError(f'Unknown format {format}')
+
+
+def print_table(data, attrs, formatter):
+    formatter.headings([a.title() for a in attrs])
+    for d in data:
+        formatter.row([str(getattr(d, a)) for a in attrs])
