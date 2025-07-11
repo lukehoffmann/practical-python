@@ -9,20 +9,13 @@ from stock import Stock
 from portfolio import Portfolio
 import tableformat
 
-def main(argv):
-    if len(argv) < 3:
-        raise SystemExit(f"Usage: {argv[0]} portfolio_filename prices_filename [csv|text]")
-
-    portfolio = read_portfolio( argv[1])
-    prices = read_prices(argv[2])
-
-    if len(argv) > 3 and argv[3] == 'csv':
-        formatter = tableformat.CsvTableFormatter
-    else:
-        formatter = tableformat.TextTableFormatter
-
+def portfolio_report(portfolio_filename, prices_filename, format="txt"):
+    portfolio = read_portfolio(portfolio_filename)
+    prices = read_prices(prices_filename)
     data = report_data(portfolio, prices)
-    print_report(data, formatter())
+
+    formatter = tableformat.create_formatter(format)
+    print_report(data, formatter)
 
     print("Total value", portfolio.total_value(prices))
 
@@ -64,4 +57,13 @@ def print_report(reportdata, formatter):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    if len(sys.argv) < 3:
+        raise SystemExit(f"Usage: {sys.argv[0]} portfolio_filename prices_filename [csv|text]")
+
+    portfolio_filename = sys.argv[1]
+    prices_filename = sys.argv[2]
+
+    if len(sys.argv) > 3:
+        portfolio_report(portfolio_filename, prices_filename, sys.argv[3])
+    else:
+        portfolio_report(portfolio_filename, prices_filename)

@@ -11,8 +11,8 @@ class TableFormatter:
 class TextTableFormatter(TableFormatter):
 
     def headings(self, headers):
-        print(" ".join(["%10s" % header for header in headers]))
-        print(" ".join([10 * "-" for _ in headers]))
+        print(" ".join("%10s" % header for header in headers))
+        print(" ".join(10 * "-" for _ in headers))
 
     def row(self, rowdata):
         for d in rowdata:
@@ -27,3 +27,12 @@ class CsvTableFormatter(TableFormatter):
 
     def row(self, rowdata):
         print(','.join(rowdata))
+
+
+def create_formatter(format):
+    if format == 'csv':
+        return CsvTableFormatter()
+    elif format == 'txt':
+        return TextTableFormatter()
+    else:
+        raise RuntimeError(f'Unknown format {format}')

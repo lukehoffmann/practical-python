@@ -1,3 +1,4 @@
+import sys
 from follow import follow
 import report
 import tableformat
@@ -31,14 +32,11 @@ def filter_symbols(rows, names):
     return (r for r in rows if r['name'] in names)
 
 
-def ticker(portfile, logfile, format):
+def ticker(portfile, logfile, format='txt'):
     portfolio = report.read_portfolio(portfile)
 
-    if format == 'csv':
-        formatter = tableformat.CsvTableFormatter()
-    else:
-        formatter = tableformat.TextTableFormatter()
-    formatter.headings(h.title() for h in column_names)
+    formatter = tableformat.create_formatter(format)
+    formatter.headings([h.title() for h in column_names])
 
     rows = parse_stock_data(follow(logfile))
     rows = filter_symbols(rows, portfolio)
@@ -47,5 +45,14 @@ def ticker(portfile, logfile, format):
         formatter.row(str(v) for v in row.values())
 
 
-if __name__ == '__main__':
-    ticker('Data/portfolio.csv', 'Data/stocklog.csv', 'txt')
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        raise SystemExit(f"Usage: {sys.argv[0]} portfolio_filename prices_filename [csv|txt]")
+
+    portfolio_filename = sys.argv[1]
+    prices_filename = sys.argv[2]
+
+    if len(sys.argv) > 3:
+        ticker(portfolio_filename, prices_filename, sys.argv[3])
+    else:
+        ticker(portfolio_filename, prices_filename)
