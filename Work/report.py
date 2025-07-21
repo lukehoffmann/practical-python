@@ -28,13 +28,13 @@ def read_prices(filename):
     return dict(prices)
 
 
-def read_portfolio(filename):
+def read_portfolio(filename, **opts):
     '''Read a portfolio file into a list of dicts with keys "name", "shares", "price"'''
     with open(filename) as f:
         data = parse_csv(
-            f, select=["name", "shares", "price"], types=[str, int, float]
+            f, select=["name", "shares", "price"], types=[str, int, float], **opts
         )
-    portfolio = [ Stock(d['name'], d['shares'], d['price']) for d in data ]
+    portfolio = [ Stock(**d) for d in data ]
     return Portfolio(portfolio)
 
 
